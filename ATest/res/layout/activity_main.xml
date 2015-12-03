@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".TestActivity" >
+
+    <TextView
+        android:id="@+id/tv_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="字号：12" />
+
+    <SeekBar
+        android:id="@+id/size_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:max="40"
+        android:progress="12" />
+
+    <TextView
+        android:id="@+id/tv_line_space"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="行间距：1.0" />
+
+    <SeekBar
+        android:id="@+id/line_space_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:max="40"
+        android:progress="0" />
+
+    <EditText
+        android:id="@+id/edt_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="start"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:textSize="12sp"
+        android:background="#cccccc" />
+
+</LinearLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="2dp" >
+
+    <LinearLayout
+        android:id="@+id/skin_menu_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="1px"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/feed_result_pop_share"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="8dp"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:paddingTop="8dp"
+            android:text="分享"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/feed_result_pop_line"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#000000" />
+
+        <TextView
+            android:id="@+id/feed_result_pop_social"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:paddingTop="10dp"
+            android:text="求助"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+</LinearLayout>
