@@ -14,6 +14,34 @@
     <com.BTyang.test.WenbaPopupMenu
         android:id="@+id/popupmenu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+    
+    <CheckBox 
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="优先选择该老师答疑"
+        android:button="@null"
+        android:paddingLeft="10dp"
+        android:paddingRight="15dp"
+        android:layout_marginTop="50dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:drawableRight="@drawable/ic_launcher"
+        android:background="@drawable/skin_comm_input_card_bg_rounded"/>
+    
+    <Button 
+        android:id="@+id/btn_do_not_click"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="别点我"/>
+    
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        
+        android:layout_below="@+id/btn_do_not_click"
+        tools:ignore="NewApi" />
 
 </RelativeLayout>

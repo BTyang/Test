@@ -3,37 +3,43 @@
  */
 package com.BTyang.test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.content.Context;
-import android.content.res.XmlResourceParser;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.InflateException;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.BTyang.test.WenbaPopupMenu.WenbaMenu.MenuItem;
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringSystem;
+import com.facebook.rebound.SpringUtil;
+import com.nineoldandroids.view.ViewHelper;
 
 /**
  * @author Mr.Yang
  *
  */
-public class WenbaPopupMenu extends FrameLayout {
+public class WenbaPopupMenu extends FrameLayout implements OnClickListener {
 	private static final String TAG = "WenbaPopupMenu";
 
 	private Context mContext;
 	private ArrayList<String> menuItems = new ArrayList<String>();
 	private LinearLayout mMenuContainer;
+	private SpringSystem springSystem;
+	private Spring translationSpring;
+	private Spring alphaSpring;
+
+	private OnWenbaPopUpMenuClickListener onWenbaPopUpMenuClickListener;
 
 	public WenbaPopupMenu(Context context) {
 		super(context);
@@ -54,6 +60,7 @@ public class WenbaPopupMenu extends FrameLayout {
 		mContext = context;
 		LayoutInflater.from(context).inflate(R.layout.view_popup_menu, this);
 		mMenuContainer = (LinearLayout) findViewById(R.id.skin_menu_container);
+		initAnimation();
 	}
 
 	public void setMenuItems(ArrayList<String> menuItems) {
@@ -68,6 +75,8 @@ public class WenbaPopupMenu extends FrameLayout {
 			item.setText(menuTitle);
 			item.setTextSize(18);
 			item.setBackgroundColor(Color.GREEN);
+			item.setId(i);
+			item.setOnClickListener(this);
 			mMenuContainer.addView(item);
 			int itemWidth = getMeasuredWidth(item);
 			Log.e(TAG, "itemWidth:" + itemWidth);
@@ -93,162 +102,79 @@ public class WenbaPopupMenu extends FrameLayout {
 		return view.getMeasuredWidth();
 	}
 
-	public static class MenuReader {
-
-		/** Menu tag name in XML. */
-		private static final String XML_MENU = "menu";
-
-		/** Group tag name in XML. */
-		private static final String XML_GROUP = "group";
-
-		/** Item tag name in XML. */
-		private static final String XML_ITEM = "item";
-
-		public static final String ATTR_MENU_ID = "android:id";
-		public static final String ATTR_MENU_TITLE = "android:title";
-
-		private Context mContext;
-
-		public MenuReader(Context context) {
-			super();
-			this.mContext = context;
-		}
-
-		/**
-		 * Inflate a menu hierarchy from the specified XML resource. Throws {@link InflateException} if there is an error.
-		 * 
-		 * @param menuRes
-		 *            Resource ID for an XML layout resource to load (e.g., <code>R.menu.main_activity</code>)
-		 * @param menu
-		 *            The Menu to inflate into. The items and submenus will be added to this Menu.
-		 */
-		public WenbaMenu read(int menuRes) {
-			WenbaMenu wenbaMenu = new WenbaMenu();
-			XmlResourceParser parser = null;
-			try {
-				parser = mContext.getResources().getLayout(menuRes);
-				parseMenu(parser, wenbaMenu);
-			} catch (XmlPullParserException e) {
-				throw new InflateException("Error inflating menu XML", e);
-			} catch (IOException e) {
-				throw new InflateException("Error inflating menu XML", e);
-			} finally {
-				if (parser != null)
-					parser.close();
-			}
-			return wenbaMenu;
-		}
-
-		/**
-		 * Called internally to fill the given menu. If a sub menu is seen, it will call this recursively.
-		 */
-		private void parseMenu(XmlPullParser parser, WenbaMenu wenbaMenu) throws XmlPullParserException, IOException {
-			int eventType = parser.getEventType();
-			String tagName;
-			boolean lookingForEndOfUnknownTag = false;
-			String unknownTagName = null;
-
-			// This loop will skip to the menu start tag
-			do {
-				if (eventType == XmlPullParser.START_TAG) {
-					tagName = parser.getName();
-					if (tagName.equals(XML_MENU)) {
-						// Go to next tag
-						eventType = parser.next();
-						break;
-					}
-
-					throw new RuntimeException("Expecting menu, got " + tagName);
-				}
-				eventType = parser.next();
-			} while (eventType != XmlPullParser.END_DOCUMENT);
-
-			boolean reachedEndOfMenu = false;
-			while (!reachedEndOfMenu) {
-				switch (eventType) {
-				case XmlPullParser.START_TAG:
-					if (lookingForEndOfUnknownTag) {
-						break;
-					}
-
-					tagName = parser.getName();
-					if (tagName.equals(XML_ITEM)) {
-						MenuItem item = new MenuItem();
-						String strId = parser.getAttributeValue(null, ATTR_MENU_ID);
-						if (strId != null) {
-							item.setId(getIdByName(strId));
-						}
-						item.setTitle(parser.getAttributeValue(null, ATTR_MENU_TITLE));
-					} else {
-						lookingForEndOfUnknownTag = true;
-						unknownTagName = tagName;
-					}
-					break;
-
-				case XmlPullParser.END_TAG:
-					tagName = parser.getName();
-					if (lookingForEndOfUnknownTag && tagName.equals(unknownTagName)) {
-						lookingForEndOfUnknownTag = false;
-						unknownTagName = null;
-					} else if (tagName.equals(XML_ITEM)) {
-
-					} else if (tagName.equals(XML_MENU)) {
-						reachedEndOfMenu = true;
-					}
-					break;
-
-				case XmlPullParser.END_DOCUMENT:
-					throw new RuntimeException("Unexpected end of document");
-				}
-
-				eventType = parser.next();
-			}
-		}
-
-		private int getIdByName(String idName) {
-			return mContext.getResources().getIdentifier(idName, "id", mContext.getPackageName());
-		}
-
+	public interface OnWenbaPopUpMenuClickListener {
+		void onMenuItemClick(int index, String title);
 	}
 
-	public static class WenbaMenu {
-
-		private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>();
-
-		public void addMenuItem(MenuItem item) {
-			menuItems.add(item);
-		}
-
-		public void removeMenuItem(MenuItem item) {
-			menuItems.remove(item);
-		}
-
-		public ArrayList<MenuItem> getMenuItems() {
-			return menuItems;
-		}
-
-		public static class MenuItem {
-			private int id;
-			private String title;
-
-			public int getId() {
-				return id;
-			}
-
-			public void setId(int id) {
-				this.id = id;
-			}
-
-			public String getTitle() {
-				return title;
-			}
-
-			public void setTitle(String title) {
-				this.title = title;
-			}
-
-		}
-
+	public OnWenbaPopUpMenuClickListener getOnWenbaPopUpMenuClickListener() {
+		return onWenbaPopUpMenuClickListener;
 	}
 
+	public void setOnWenbaPopUpMenuClickListener(OnWenbaPopUpMenuClickListener onWenbaPopUpMenuClickListener) {
+		this.onWenbaPopUpMenuClickListener = onWenbaPopUpMenuClickListener;
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (onWenbaPopUpMenuClickListener != null) {
+			onWenbaPopUpMenuClickListener.onMenuItemClick(v.getId(), ((TextView) v).getText().toString());
+		}
+	}
+
+	private void initAnimation() {
+		springSystem = SpringSystem.create();
+
+		translationSpring = springSystem.createSpring().setSpringConfig(SpringConfig.fromBouncinessAndSpeed(5, 10)).addListener(new SimpleSpringListener() {
+			@Override
+			public void onSpringUpdate(Spring spring) {
+				setAnimationProgress((float) spring.getCurrentValue());
+			}
+		});
+		alphaSpring = springSystem.createSpring().setSpringConfig(SpringConfig.fromBouncinessAndSpeed(0, 8)).addListener(new SimpleSpringListener() {
+			@Override
+			public void onSpringUpdate(Spring spring) {
+				setAlphaProgress((float) spring.getCurrentValue());
+			}
+		});
+	}
+
+	public void setAnimationProgress(float progress) {
+		ViewHelper.setPivotX(mMenuContainer, mMenuContainer.getMeasuredWidth());
+		ViewHelper.setPivotY(mMenuContainer, 0);
+		ViewHelper.setScaleX(mMenuContainer, progress);
+		ViewHelper.setScaleY(mMenuContainer, progress);
+	}
+
+	public void setAlphaProgress(float progress) {
+	}
+
+	public void popAnimation(boolean show) {
+		translationSpring.setCurrentValue(show ? 0 : 1);
+		translationSpring.setEndValue(show ? 1 : 0);
+		alphaSpring.setCurrentValue(1);
+		alphaSpring.setEndValue(0);
+	}
+
+	public float transition(float progress, float startValue, float endValue) {
+		return (float) SpringUtil.mapValueFromRangeToRange(progress, 0, 1, startValue, endValue);
+	}
+	
+	public void show(){
+		this.setVisibility(View.VISIBLE);
+		popAnimation(true);
+	}
+	
+	public void dismiss(){
+		this.setVisibility(View.GONE);
+	}
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			dismiss();
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+	
 }
